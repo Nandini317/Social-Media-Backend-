@@ -30,19 +30,3 @@ export {asyncHandler}
 //         })
 //     }
 // }
-
-
-
-
-
-(()=>{
-    console.log("hello")
-})();
-
-(function chai(){
-    console.log("chai")
-})();
-
-((name)=>{
-    console.log(`hello ${name}`)
-})("hitesh")

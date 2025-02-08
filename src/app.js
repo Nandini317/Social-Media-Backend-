@@ -5,13 +5,15 @@ const app = express()
 
 
 app.use(cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: process.env.CORS_ORIGIN, //Specifies which origins (domains) are allowed to make cross-origin requests.
     credentials : true 
 }))
 
+// what is app.use() : function in Express.js adds middleware to the application’s request-processing pipeline. It applies the specified middleware to all incoming requests or to specific routes, allowing you to modify request/response objects, perform operations, or handle errors throughout the application.
+
 app.use(express.json({limit:"16kb"}))
 app.use(express.urlencoded({
-    extended :true, // just for extended objects(nested)
+    extended :true, //  allows nested objects in form data. eg : {user : age: 20, name :"manan"}
     limit:"16kb"
 }))
 app.use(express.static("public")) // agr hm koi file pdf vgera sttore krna chahte hai , to ek public folder bna dete hai k public 
