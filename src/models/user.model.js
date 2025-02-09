@@ -53,7 +53,7 @@ const userSchema = new Schema(
     }
 );
 
-userSchema.pre("save" ,async function (next){
+userSchema.pre("save" ,async function (next){ //fnctn should not be an arrow function , as we need the context of "this"
     if(!this.isModified("password")) return next() ; // agr password mein koi changes hi nahi hai to kyu hi update krna baar baar 
     // like if someone changes avatar , then why to again hash the password ?
 
@@ -67,13 +67,14 @@ userSchema.methods.isPasswordCorrect = async function(password){
 }
 
 userSchema.methods.generateAccessToken = function(){
-    return jwt.sign({
-        _id:this._id ,
+    return jwt.sign( // (payload , secret key , expiration )
+    { //Payload (Data Inside the Token)
+        _id:this._id , //unique id 
         email :this.email ,
         username:this.username,
         fullName : this.fullName
     } ,
-    process.env.ACCESS_TOKEN_SECRET , 
+    process.env.ACCESS_TOKEN_SECRET , //ensures only the server can generate valid tokens.
     {
         expiresIn: process.env.ACCESS_TOKEN_EXPIRY
     }

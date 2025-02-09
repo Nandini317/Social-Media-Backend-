@@ -40,7 +40,8 @@ const videoSchema = new Schema(
     ,{timestamps : true }
 );
 
-mongoose.plugin(mongooseAggregatePaginate) 
+mongoose.plugin(mongooseAggregatePaginate) // A plugin in Mongoose is a reusable function that adds extra features to Mongoose schemas.Adds extra functionalities like pagination, soft delete, timestamps, etc.
+//A pagination plugin in Mongoose helps break large datasets into smaller chunks (pages) for easy querying.
 
 
 
