@@ -57,7 +57,7 @@ userSchema.pre("save" ,async function (next){ //fnctn should not be an arrow fun
     if(!this.isModified("password")) return next() ; // agr password mein koi changes hi nahi hai to kyu hi update krna baar baar 
     // like if someone changes avatar , then why to again hash the password ?
 
-    this.password = bcrypt.hash(this.password ,10 ) // hash(kisko krna hai , kitne rounds of salting )
+    this.password = await bcrypt.hash(this.password ,10 ) // hash(kisko krna hai , kitne rounds of salting )
     next()
 } )
 
