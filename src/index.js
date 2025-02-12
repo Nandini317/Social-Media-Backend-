@@ -7,7 +7,7 @@ import {app} from './app.js'
 // 2nd approach : write the whole connection code in a seperate file(index.js in db) , and call it here ..since this is the main 
 // file , it is better approach to firsly import the environment bvariables 
 dotenv.config({
-    path: './env'
+    path: './.env'
 })
 
 connectDB() // this will return a promise 

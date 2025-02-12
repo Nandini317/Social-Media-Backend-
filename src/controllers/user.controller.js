@@ -18,7 +18,7 @@ const registerUser = asyncHandler( async(req, res) =>{
     }
 
     //do user already exist ?
-    const existedUser = User.findOne({
+    const existedUser = await User.findOne({
         $or: [{ username } ,{ email }] //out of this array of objects if , User can find any user with same email or usename it will return  
     })
 
@@ -26,10 +26,16 @@ const registerUser = asyncHandler( async(req, res) =>{
         throw new ApiError(409 , 'User with this email or username already exists ')
     }
 
+    //console.log(req.files);
+
     //kyuki hmne is controller ko call krne ke pehle user.routes mein multer middleware , use kiya tha , so vo kuch additional properties proide krta hai 
     //just like req.body is provided by express by default , req.files is provided by multer but ho bhi skta hai nahi bhi 
     const avatarLocalPath = req.files?.avatar[0]?.path; //.path is automatically added by Multer and contains the full file location.
-    const coverImageLocalPath = req.files?.coverImage[0]?.path ;
+    //const coverImageLocalPath = req.files?.coverImage[0]?.path ;
+    let coverImageLocalPath ;
+    if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length>0){
+        coverImageLocalPath = req.files?.coverImage[0]?.path ;
+    }
 
     if(!avatarLocalPath){
         throw new ApiError(400 , "Avatar file is required" ) ; 
@@ -47,7 +53,7 @@ const registerUser = asyncHandler( async(req, res) =>{
     const user = await User.create({
         fullName , 
         avatar: avatar.url , 
-        coverImage : coverImage?.URL || "" , 
+        coverImage : coverImage?.url || "" , 
         email , 
         password  ,
         username :username.toLowerCase() 
