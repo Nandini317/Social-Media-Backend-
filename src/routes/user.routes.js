@@ -4,9 +4,9 @@ import {loginUser} from '../controllers/user.controller.js'
 import {logoutUser , refreshAccessToken} from '../controllers/user.controller.js'
 import {verifyJWT} from '../middlewares/auth.middleware.js'
 import jwt from 'jsonwebtoken'
+import {upload} from "../middlewares/multer.middleware.js"
 
 const router = Router() ;
-import {upload} from "../middlewares/multer.middleware.js"
 
 
 router.route("/register").post(
