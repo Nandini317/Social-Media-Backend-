@@ -39,7 +39,7 @@ router.route("/update-account").patch(verifyJWT , updateAccountDetails) //PATCH 
 
 router.route("/avatar").patch(verifyJWT , upload.single("avatar") , updateUserAvatar) //It processes a single file upload from a form field named 'avatar'.
 
-router.route("/cover-image").patch(verifyJWT , upload.single("/coverImage") ,updateCoverImage)
+router.route("/cover-image").patch(verifyJWT , upload.single("coverImage") ,updateCoverImage)
 
 router.route("/c/:username").get(verifyJWT , getUserCurrentProfile)
 
