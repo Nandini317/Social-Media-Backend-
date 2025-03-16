@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import { registerUser } from '../controllers/user.controller.js'
+import { registerUser , changeCurrentPassword, getCurrentUser, updateAccountDetails, updateUserAvatar, updateCoverImage, getUserCurrentProfile, getWatchHistory } from '../controllers/user.controller.js'
 import {loginUser} from '../controllers/user.controller.js'
 import {logoutUser , refreshAccessToken} from '../controllers/user.controller.js'
 import {verifyJWT} from '../middlewares/auth.middleware.js'
@@ -31,5 +31,18 @@ router.route("/logout").post(verifyJWT , logoutUser)
 
 router.route("/refresh-token").post(refreshAccessToken)
 
+router.route("/change-password").post(verifyJWT ,changeCurrentPassword)
+
+router.route("/current-user").get(verifyJWT , getCurrentUser)
+
+router.route("/update-account").patch(verifyJWT , updateAccountDetails) //PATCH updates only the specified fields while keeping other fields unchanged.
+
+router.route("/avatar").patch(verifyJWT , upload.single("avatar") , updateUserAvatar) //It processes a single file upload from a form field named 'avatar'.
+
+router.route("/cover-image").patch(verifyJWT , upload.single("/coverImage") ,updateCoverImage)
+
+router.route("/c/:username").get(verifyJWT , getUserCurrentProfile)
+
+router.route("history").get(verifyJWT , getWatchHistory)
 
 export default router 
