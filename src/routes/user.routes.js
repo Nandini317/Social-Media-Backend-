@@ -43,6 +43,6 @@ router.route("/cover-image").patch(verifyJWT , upload.single("coverImage") ,upda
 
 router.route("/c/:username").get(verifyJWT , getUserCurrentProfile)
 
-router.route("history").get(verifyJWT , getWatchHistory)
+router.route("/history").get(verifyJWT , getWatchHistory)
 
 export default router 
