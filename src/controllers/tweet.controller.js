@@ -24,7 +24,24 @@ const createTweet = asyncHandler(async (req, res) => {
 
 const getUserTweets = asyncHandler(async (req, res) => {
     // TODO: get user tweets
+    const {userId} = req.params
+    if(!userId){
+        throw new ApiError(400 , "User id is required")
+    }
+    if(!isValidObjectId(userId)){
+        throw new ApiError(400 , "Invalid user id")
+    }
+    const tweets = await Tweet.find({owner : userId})
 
+    
+    if(!tweets){
+        throw new ApiError(500 , "error while fetching tweets")
+    }
+    const data = {
+        tweets , 
+        totalTweets : tweets.length
+    }
+    return res.status(200).json(new ApiResponse(200 , data , "User tweets fetched successfully"))
 })
 
 const updateTweet = asyncHandler(async (req, res) => {
@@ -42,7 +59,7 @@ const updateTweet = asyncHandler(async (req, res) => {
         throw new ApiError(400 , "Content is required")
     }
 
-    const updatedtweet = await Tweet.findByIdAndUpdate(tweetId , {content} , {new : true }) 
+    const updatedtweet = await Tweet.findByIdAndUpdate({_id: tweetId , owner : req.user._id }, {content} , {new : true }) 
     if(!updatedtweet){
         throw new ApiError(500 , "error while updating tweet")
     }
@@ -52,6 +69,20 @@ const updateTweet = asyncHandler(async (req, res) => {
 
 const deleteTweet = asyncHandler(async (req, res) => {
     //TODO: delete tweet
+    const {tweetId} = req.params 
+    if(!tweetId){
+        throw new ApiError(400 , "Tweet id is required")
+    }
+    if(!isValidObjectId(tweetId)){
+        throw new ApiError(400 , "Invalid tweet id")
+    }
+    const deleted_tweet = await Tweet.findByIdAndDelete(
+        {_id: tweetId , owner : req.user._id} 
+    )
+    if(!deleted_tweet){
+        throw new ApiError(500 , "error while deleting tweet") 
+    }
+    return res.status(200).json(new ApiResponse(200 ,{} , "Tweet deleted successfully "))
 })
 
 export {
