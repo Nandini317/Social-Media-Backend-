@@ -9,8 +9,123 @@ import {uploadOnCloudinary} from "../utils/cloudinary.js"
 
 const getAllVideos = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
-    //TODO: get all videos based on query, sort, pagination
+    const options = {
+        page : parseInt(page)  , 
+        limit : parseInt(limit)
+    }
 
+    //fetching videos based on queries 
+    // push the invidual aggregation stages in pipeline as per queries 
+    const pipeline = []
+
+    if(query){ //for index - text based search 
+        pipeline.push({
+            $search: {
+                index: 'search-videos', // TODO : create an index in mongo atlas
+                text: {
+                    query: query,
+                    path: 'title'
+                }
+            }
+        });
+    }
+
+    if(sortBy && sortType){
+        pipeline.push({
+            $sort: {
+                createdAt: sortType === "asc" ? 1 : -1
+            }
+        })
+    }else{
+        pipeline.push({
+            $sort: {
+                createdAt: -1
+            }
+        })
+    }
+
+    if(userId){
+        pipeline.push({
+            $match: {
+                owner: new mongoose.Types.ObjectId(userId)
+            },
+        })
+    }
+
+    pipeline.push({
+        $match: {
+            isPublished: true
+        }
+    })
+
+    const searchResults = await Video.aggregate(pipeline).exec()
+
+    const videoIds = searchResults.map(video => video._id)
+
+    if(!videoIds.length){
+        return res.status(200)
+        .json(new ApiResponse(200, {docs: [], totalDocs: 0, limit: options.limit, page: options.page, totalPages: 0 }, "No videos found"))
+    }
+
+    const paginatePipeline = [
+        {
+            $match: {
+                _id: { $in: videoIds }
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "owner",
+                foreignField: "_id",
+                as: "user",
+                pipeline: [
+                    {
+                        $project: {
+                            fullname: 1,
+                            username: 1,
+                            avatar: 1,
+                            coverImage: 1,
+                            email: 1,                
+                        }
+                    },
+                ]
+            
+            },
+        
+        },
+        {
+            $addFields: {
+                owner: {
+                    $first: "$user"
+                }
+            }
+        },
+        {
+            $project: {
+                title: 1,
+                description: 1,
+                owner: 1,
+                videoFile: 1,
+                thumbnail: 1,
+                duration: 1,
+                views: 1
+            }
+        }
+    ]
+
+
+    const videoAggregate = Video.aggregate(paginatePipeline)
+
+    const videos = await Video.aggregatePaginate(videoAggregate, options)
+
+    console.log(videos);
+    if(!videos){
+        throw new ApiError(400, "Something went wrong while fetching videos")
+    }
+
+    return res.status(200)
+    .json(new ApiResponse(200, videos, "Videos fetched successfully"))
 
 })
 
@@ -114,7 +229,7 @@ const getVideoById = asyncHandler(async (req, res) => {
     }
    ]) ; 
 
-   if(!video){
+   if(!video?.length){
     throw new ApiError(404 , "video not found ")
    }
    return res.status(200).json(new ApiResponse(200 , video , "video found successfully"))
@@ -180,12 +295,12 @@ const deleteVideo = asyncHandler(async (req, res) => {
 
     // Delete the video file from Cloudinary if it exists
     if (video.videoFile?.public_id) {
-        await deleteOnCloudinary(video.videoFile.public_id);
+        await cloudinary.uploader.destroy(video.videoFile.public_id);
     }
 
     // Delete the thumbnail from Cloudinary if it exists
     if (video.thumbnail?.public_id) {
-        await deleteOnCloudinary(video.thumbnail.public_id);
+        await cloudinary.uploader.destroy(video.thumbnail.public_id);
     }
 
     // Now delete the video document from MongoDB
