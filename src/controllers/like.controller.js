@@ -145,6 +145,10 @@ const getLikedVideos = asyncHandler(async (req, res) => {
             $unwind: "$videoOwner",
         },
     ]);
+    if(!likedVideos){
+        throw new ApiError(400 , "error while fetching liked Videos ")
+    }
+    return res.status(200).json(new ApiResponse(201 , likedVideos , "liked videos fetched successfully "))
     
 })
 
