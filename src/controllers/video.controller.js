@@ -10,8 +10,8 @@ import {uploadOnCloudinary} from "../utils/cloudinary.js"
 const getAllVideos = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
     const options = {
-        page : parseInt(page)  , 
-        limit : parseInt(limit)
+        page : parseInt(page, 10)  , 
+        limit : parseInt(limit , 10)
     }
 
     //fetching videos based on queries 
@@ -36,7 +36,8 @@ const getAllVideos = asyncHandler(async (req, res) => {
                 createdAt: sortType === "asc" ? 1 : -1
             }
         })
-    }else{
+    }
+    else{
         pipeline.push({
             $sort: {
                 createdAt: -1
@@ -54,7 +55,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
     pipeline.push({
         $match: {
-            isPublished: true
+            ispublished: true
         }
     })
 
@@ -130,7 +131,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
 })
 
 const publishAVideo = asyncHandler(async (req, res) => {
-    console.log("yes we are getting a request " + req.body)   
+      
 
     const { title, description} = req.body
     console.log(req.files)
@@ -152,7 +153,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
     }
 
     const video = await uploadOnCloudinary(videoLocalPath)
-    if(!video){
+    if(!video || !video.url){
         throw new ApiError(400 , "error while uploading video ")
     }
 
@@ -168,8 +169,8 @@ const publishAVideo = asyncHandler(async (req, res) => {
 
     //create video
     const videopublish = await Video.create({
-        videoFile : video.url , 
-        thumbnail :  thumbnailuploaded.url ,
+        videoFile : video?.url , 
+        thumbnail :  thumbnailuploaded?.url ,
         title , 
         description ,
         owner ,  
@@ -188,6 +189,9 @@ const publishAVideo = asyncHandler(async (req, res) => {
 
 const getVideoById = asyncHandler(async (req, res) => {
     const { videoId } = req.params
+    if(!videoId){
+        throw new ApiError(400 , "videoId not found")
+    }
     if(!isValidObjectId(videoId)){
         throw new ApiError(400 , "Invalid video id")
     }
@@ -196,7 +200,7 @@ const getVideoById = asyncHandler(async (req, res) => {
 
     {
         $match : {
-            _id : mongoose.Types.ObjectId(videoId)
+            _id : new mongoose.Types.ObjectId(videoId)
         }
     } , 
     {
@@ -229,7 +233,7 @@ const getVideoById = asyncHandler(async (req, res) => {
     }
    ]) ; 
 
-   if(!video?.length){
+   if(!video || !video.length){
     throw new ApiError(404 , "video not found ")
    }
    return res.status(200).json(new ApiResponse(200 , video , "video found successfully"))

@@ -1,6 +1,6 @@
 import mongoose, { isValidObjectId } from "mongoose"
 import {Comment} from "../models/comment.model.js"
-import {ApiError} from "../utils/ApiError.js"
+import {ApiError} from "../utils/ApiErrors.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
 
@@ -15,7 +15,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
     const comments = await Comment.aggregate([
         {
             $match : {
-                video : mongoose.Types.ObjectId(videoId)
+                video :new mongoose.Types.ObjectId(videoId)
             }
         },
         {
@@ -37,10 +37,10 @@ const getVideoComments = asyncHandler(async (req, res) => {
         {
             $addFields :{
                 likesCount :{
-                    $size : $likes
+                    $size : "$likes"
                 } , 
                 owner : {
-                    $first : $owner
+                    $first : "$owner"
                 },
                 //TODO : Is liked by the current user seeing it ? do it after likes controller 
             }

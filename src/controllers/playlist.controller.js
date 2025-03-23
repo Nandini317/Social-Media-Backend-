@@ -1,6 +1,6 @@
 import mongoose, {isValidObjectId} from "mongoose"
 import {Playlist} from "../models/playlist.model.js"
-import {ApiError} from "../utils/ApiError.js"
+import {ApiError} from "../utils/ApiErrors.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
 import {User} from "../models/user.model.js"
@@ -131,7 +131,7 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
     const playlist = await Playlist.findByIdAndUpdate(playlistId , 
         {
             $pull :{
-                videos : mongoose.Types.ObjectId(videoId)
+                videos : new mongoose.Types.ObjectId(videoId)
             }
         } , 
         {new : true }
@@ -172,9 +172,9 @@ const updatePlaylist = asyncHandler(async (req, res) => {
     if(!name && !description){
         throw new ApiError(400 , "need a title or description to update")
     }
-    if([name, description].some((field)=> field?.trim() === "")){
-        throw new ApiError(400, "All fields are required")
-    }
+    // if([name, description].some((field)=> field?.trim() === "")){
+    //     throw new ApiError(400, "All fields are required")
+    // }
     const playlist = await Playlist.findByIdAndUpdate(playlistId , 
         {
            $set: {

@@ -1,7 +1,7 @@
 import mongoose, {isValidObjectId} from "mongoose"
 import {User} from "../models/user.model.js"
 import { Subscription } from "../models/subscription.model.js"
-import {ApiError} from "../utils/ApiError.js"
+import {ApiError} from "../utils/ApiErrors.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
 
@@ -55,7 +55,7 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
     const subscribers = await Subscription.aggregate([
         {
             $match:{
-                channel : mongoose.Types.ObjectId(channelId)
+                channel : new mongoose.Types.ObjectId(channelId)
             }
         } , 
         { 
@@ -107,7 +107,7 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
     const channels = await Subscription.aggregate([
         {
             $match : {
-                subscriber : mongoose.Types.ObjectId(subscriberId)
+                subscriber : new mongoose.Types.ObjectId(subscriberId)
             } 
         } , 
         {

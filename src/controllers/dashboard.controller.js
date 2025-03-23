@@ -2,7 +2,7 @@ import mongoose from "mongoose"
 import {Video} from "../models/video.model.js"
 import {Subscription} from "../models/subscription.model.js"
 import {Like} from "../models/like.model.js"
-import {ApiError} from "../utils/ApiError.js"
+import {ApiError} from "../utils/ApiErrors.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
 
@@ -25,7 +25,7 @@ const getChannelStats = asyncHandler(async (req, res) => {
     const videoStats = await Video.aggregate([
         {
             $match: {
-                owner : mongoose.Types.ObjectId(req.user._id)
+                owner : new mongoose.Types.ObjectId(req.user._id)
             }
         } , 
         {
@@ -46,7 +46,7 @@ const getChannelStats = asyncHandler(async (req, res) => {
     const totalSubscribers  = await Subscription.aggregate([
         {
             $match : {
-                channel : mongoose.Types.ObjectId(req.user._id)
+                channel : new mongoose.Types.ObjectId(req.user._id)
             }
         }, 
         {
@@ -107,7 +107,7 @@ const getChannelVideos = asyncHandler(async (req, res) => {
     const paginatedvideos = await Video.aggregatePaginate(Video.aggregate([
         {
             $match : {
-                owner : mongoose.Types.ObjectId(req.user._id)
+                owner : new mongoose.Types.ObjectId(req.user._id)
             }
         } , 
         {
