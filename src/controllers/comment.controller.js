@@ -42,7 +42,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
                 owner : {
                     $first : "$owner"
                 },
-                //TODO : Is liked by the current user seeing it ? do it after likes controller 
+                
             }
         } , 
         {
@@ -55,7 +55,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
                     fullName : 1  ,
                     Avatar : 1 
                 } , 
-                //isLiked : 1 //todo 
+                
             }
         }
     ]) 
@@ -150,7 +150,7 @@ const deleteComment = asyncHandler(async (req, res) => {
     if(comment.owner.toString() !== req.user._id.toString()){
         throw new ApiError(403 , "unauthorized user")
     }
-   //  await comment.deleteOne(); // More efficient than `findByIdAndDelete`
+   
     const deleted = await Comment.findByIdAndDelete(commentId)
     if(!deleted){
         throw new ApiError(500, "Something went wrong while deleting comment")
