@@ -13,15 +13,13 @@ const getAllVideos = asyncHandler(async (req, res) => {
         page : parseInt(page, 10)  , 
         limit : parseInt(limit , 10)
     }
-
-    //fetching videos based on queries 
-    // push the invidual aggregation stages in pipeline as per queries 
+ 
     const pipeline = []
 
-    if(query){ //for index - text based search 
+    if(query){ 
         pipeline.push({
             $search: {
-                index: 'search-videos', // TODO : create an index in mongo atlas
+                index: 'search-videos',
                 text: {
                     query: query,
                     path: 'title'
@@ -195,7 +193,7 @@ const getVideoById = asyncHandler(async (req, res) => {
     if(!isValidObjectId(videoId)){
         throw new ApiError(400 , "Invalid video id")
     }
-    //const video = await Video.findById(videoId)
+    
    const video = await Video.aggregate([
 
     {
@@ -204,7 +202,7 @@ const getVideoById = asyncHandler(async (req, res) => {
         }
     } , 
     {
-        $lookup:{ //lookup always returns ans arrays , so we can unwind it 
+        $lookup:{  
             from : 'users' , 
             localField:"owner" , 
             foreignField : "_id" , 
@@ -241,8 +239,7 @@ const getVideoById = asyncHandler(async (req, res) => {
 
 const updateVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params
-    //TODO: update video details like title, description, thumbnail
-    //if the current user is the owner of the video , then only , he can update the details  
+ 
     const {title , description} = req.body 
     const thumbnailLocalPath = req.file?.path
 
@@ -258,7 +255,7 @@ const updateVideo = asyncHandler(async (req, res) => {
     if(!videocheck){
         throw new ApiError(400 , "Invalid video id")
     }
-    // Ensure the user updating the video is the owner
+ 
     if (!videocheck.owner.equals(req.user._id)) {
         throw new ApiError(403, "You are not authorized to update this video");
     }
