@@ -25,11 +25,7 @@ const generateAccessAndRefreshToken = async(userId)=>{
 } 
 
 const registerUser = asyncHandler( async(req, res) =>{
-    // res.status(200).json({        // just for starting , testing api
-    //     message:"ok"
-    // })
-    // 1. get user details from frontend acc to user model : sari user details hmein "req.body"  mein milti hai agar form se ya direct json se data aa rha hai to (abhi url ki baat ni ki)// 2. validation --not empty// 3. check if user already exists how ?? unique email or unique username // 4. files ? avatar and coverimage // 5. upload them to cloudinary (we already have written  a uitility ) , check fif avatar is correctly uploaded or not  // 6. create user object -- create entry in db // 7. remove password and refresh token from response // 8. check for user creation i.e response  // 9. return res 
-
+    
     const {username , email,fullName , password} = req.body
     console.log( "username : " , username  )
 
@@ -46,12 +42,9 @@ const registerUser = asyncHandler( async(req, res) =>{
         throw new ApiError(409 , 'User with this email or username already exists ')
     }
 
-    //console.log(req.files);
-
-    //kyuki hmne is controller ko call krne ke pehle user.routes mein multer middleware , use kiya tha , so vo kuch additional properties proide krta hai 
-    //just like req.body is provided by express by default , req.files is provided by multer but ho bhi skta hai nahi bhi 
+    
     const avatarLocalPath = req.files?.avatar[0]?.path; //.path is automatically added by Multer and contains the full file location.
-    //const coverImageLocalPath = req.files?.coverImage[0]?.path ;
+   
     let coverImageLocalPath ;
     if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length>0){
         coverImageLocalPath = req.files?.coverImage[0]?.path ;
@@ -61,7 +54,7 @@ const registerUser = asyncHandler( async(req, res) =>{
         throw new ApiError(400 , "Avatar file is required" ) ; 
     }
 
-    //now upload on cloudinary 
+   
     const avatar = await uploadOnCloudinary(avatarLocalPath) ; 
     const coverImage = await uploadOnCloudinary(coverImageLocalPath) ; 
 
@@ -69,7 +62,7 @@ const registerUser = asyncHandler( async(req, res) =>{
         throw new ApiError(400 , "Avatar file is required" ) ; 
     }
     
-    //create a user object and entry in database 
+    
     const user = await User.create({
         fullName , 
         avatar: avatar.url , 
@@ -79,7 +72,7 @@ const registerUser = asyncHandler( async(req, res) =>{
         username :username.toLowerCase() 
     })
 
-    //to check if User is created , we can do this by finding user by User.findById 
+     
     const createdUser = await User.findById(user._id).select(
         "-password -refreshToken"
     )
@@ -95,12 +88,7 @@ const registerUser = asyncHandler( async(req, res) =>{
 } )
 
 const loginUser = asyncHandler( async(req, res)=>{
-    //req body se data 
-    // username or email 
-    //find the user 
-    //check password 
-    //access and refresh token generation 
-    //send secure cookies and send res 
+   
 
     const {email , username , password } = req.body ;
     if(!(username || email)  ){
@@ -142,7 +130,7 @@ const loginUser = asyncHandler( async(req, res)=>{
 } )
 
 const logoutUser  = asyncHandler( async(req, res)=>{
-    await User.findByIdAndUpdate( //finds a user by _id and updates the specified fields.
+    await User.findByIdAndUpdate( 
         req.user._id  , 
         {
             $unset:{
@@ -238,7 +226,7 @@ const updateAccountDetails = asyncHandler(async(req, res)=>{
                 email
             }
         } ,
-        {new:true } //is se updated info return hoti hai , jo hm user mein store krnege  
+        {new:true }   
     ).select("-password")
 
     return res
@@ -247,7 +235,7 @@ const updateAccountDetails = asyncHandler(async(req, res)=>{
 })
 
 const updateUserAvatar = asyncHandler(async(req , res)=>{
-    const avatarLocalPath = req.file?.path  //because , we are just updating 1 file oonly ..so the middleware will have only 1 file 
+    const avatarLocalPath = req.file?.path 
     if(!avatarLocalPath){
         throw new ApiError(400 , "Avatar file is missing") 
     }
@@ -269,7 +257,7 @@ const updateUserAvatar = asyncHandler(async(req , res)=>{
 
 })
 const updateCoverImage = asyncHandler(async(req , res)=>{
-    const coverImageLocalPath = req.file?.path  //because , we are just updating 1 file oonly ..so the middleware will have only 1 file 
+    const coverImageLocalPath = req.file?.path   
     if(!coverImageLocalPath){
         throw new ApiError(400 , "Avatar file is missing") 
     }
@@ -368,11 +356,7 @@ const getUserCurrentProfile = asyncHandler(async(req , res)=>{
 const getWatchHistory = asyncHandler(async(req , res)=>{
     const user = await User.aggregate([
         {
-            $match : { 
-                //jb bhi hm user ki watch history fetch krte hai , to hm user ki id se hi fetch krte hai
-                //user id jo hoti hai mongo db ki that is a string , so we have to convert it into ObjectId
-                // without aggrgation pipeline , it is automaticlly converted into ObjectId by mongoose but 
-                // aggregation pipeline ka code aese hi jata hai without this conversion , so we have to do it manually 
+            $match : {  
                 _id : new mongoose.Types.ObjectId(req.user._id)
             }
         } , 
