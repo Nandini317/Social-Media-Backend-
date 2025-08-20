@@ -28,7 +28,7 @@ const createPlaylist = asyncHandler(async (req, res) => {
     }
     return res.status(200).json(new ApiResponse(200 , playlist , "Playlist created successfully"))
 
-    //TODO: create playlist
+    
 })
 
 const getUserPlaylists = asyncHandler(async (req, res) => {
@@ -43,21 +43,7 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
     if (!user) {
         throw new ApiError(404, "User not found");
     }
-    // const playlists = await Playlist.aggregate([ // as When fetching all playlists of a user (getUserPlaylists), you only need playlist info, not videos.
-    //     {
-    //         $match :{
-    //             owner : mongoose.Types.ObjectId(userId)
-    //         }
-    //     } , 
-    //     {
-    //         $lookup : {
-    //             from : "videos" , 
-    //             localField : "videos",
-    //             foreignField : "_id" , 
-    //             as: "videos"
-    //         }
-    //     }
-    // ])
+    
     const playlists = await Playlist.find({owner: userId});
     if(!playlists){
         throw new ApiError(500  , "playlists not found ")
@@ -67,7 +53,7 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
 
 const getPlaylistById = asyncHandler(async (req, res) => {
     const {playlistId} = req.params
-    //TODO: get playlist by id
+    
     if(!playlistId){
         throw new ApiError(400 ,"playlist id is required ")
     }
@@ -115,7 +101,7 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
 
 const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
     const {playlistId, videoId} = req.params
-    // TODO: remove video from playlist
+    
 
     if(!playlistId || !videoId){
         throw new ApiError(400 , "playlistId and videoId is required ")
@@ -162,7 +148,7 @@ const deletePlaylist = asyncHandler(async (req, res) => {
 const updatePlaylist = asyncHandler(async (req, res) => {
     const {playlistId} = req.params
     const {name, description} = req.body
-    //TODO: update playlist
+    
     if(!playlistId){
         throw new ApiError(400 , "Invalid playlist id")
     }
