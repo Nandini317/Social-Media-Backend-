@@ -227,7 +227,11 @@ const updateAccountDetails = asyncHandler(async(req, res)=>{
             }
         } ,
         {new:true }   
-    ).select("-password")
+    ).select("-password") ;
+
+     if(!user){
+        throw new ApiError(400 , 'error while updation, try again later ')
+    }
 
     return res
     .status(200)
