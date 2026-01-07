@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import { registerUser , changeCurrentPassword, getCurrentUser, updateAccountDetails, updateUserAvatar, updateCoverImage, getUserCurrentProfile, getWatchHistory } from '../controllers/user.controller.js'
+import { registerUser , changeCurrentPassword, getCurrentUser, updateAccountDetails, updateUserAvatar, updateCoverImage, getUserCurrentProfile } from '../controllers/user.controller.js'
 import {loginUser} from '../controllers/user.controller.js'
 import {logoutUser , refreshAccessToken} from '../controllers/user.controller.js'
 import {verifyJWT} from '../middlewares/auth.middleware.js'
@@ -43,6 +43,5 @@ router.route("/cover-image").patch(verifyJWT , upload.single("coverImage") ,upda
 
 router.route("/c/:username").get(verifyJWT , getUserCurrentProfile)
 
-router.route("/history").get(verifyJWT , getWatchHistory)
 
 export default router 
