@@ -51,29 +51,11 @@ const getChannelStats = asyncHandler(async (req, res) => {
         }
     ])
 
-    const totalLikes = videoStats.length > 0 ?await Like.aggregate([
-        {
-            $match: {
-                video: {
-                    $in: videoStats[0].videos,
-                },
-            },
-        },
-        {
-            $group: {
-                _id: null,
-                totalLikes: {
-                    $sum: 1,
-                },
-            },
-        },
-    ]): [{ totalLikes: 0 }];
 
     const stats = {
         totalVideoViews : videoStats[0]?.totalVideoViews ||0 , 
         totalVideos : videoStats[0]?.totalVideos ||0 , 
         totalSubscribers : totalSubscribers[0]?.totalSubscibers  || 0, 
-        totalLikes : totalLikes[0]?.totalLikes ||0
     }
 
     
